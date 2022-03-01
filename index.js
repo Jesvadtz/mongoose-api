@@ -14,6 +14,51 @@ const DB_NAME = "kodemia";
 const URL = `mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}`;
 server.use(express.json());
 
+server.get("/koders/", async (request, response) => {
+  try {
+    const name = request.query.name;
+    const age = request.query.age;
+    const generation = request.query.generation;
+    const gender = request.query.gender;
+
+    let koderData = await Koder.find({});
+
+    if (name) {
+      koderData = koderData.filter((koder) => {
+        return koder.name.toLowerCase() === name.toLocaleLowerCase();
+      });
+    }
+    if (age) {
+      koderData = koderData.filter((koder) => {
+        return parseInt(koder.age) === parseInt(age);
+      });
+    }
+    if (generation) {
+      koderData = koderData.filter((koder) => {
+        return parseInt(koder.generation) === parseInt(generation);
+      });
+    }
+    if (gender) {
+      koderData = koderData.filter((koder) => {
+        return koder.gender.toLowerCase() === gender.toLocaleLowerCase();
+      });
+    }
+    if (!koderData.name) throw new Error("koder not found");
+    if (!koderData.age) throw new Error("koder not found");
+    if (!koderData.generation) throw new Error("koder not found");
+    if (!koderData.gender) throw new Error("koder not found");
+    response.json({
+      koderFound: koderData,
+    });
+  } catch (error) {
+    response.status(404);
+    response.json({
+      succes: false,
+      message: error.message,
+    });
+  }
+});
+
 server.get("/koders", async (request, response) => {
   const koders = await Koder.find({}); // Regresa una promesa
 
